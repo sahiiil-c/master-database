@@ -7,7 +7,7 @@ from streamlit_autorefresh import st_autorefresh
 st_autorefresh(2000,limit=3)
 
 # login imports 
-print(st.secrets["redirect_link"])
+st.write(st.secrets["redirect_link"])
 from streamlit_oauth import OAuth2Component
 import requests
 
