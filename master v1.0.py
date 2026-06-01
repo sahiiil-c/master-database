@@ -12,7 +12,7 @@ import requests
 
 # ── Page config ────────────────────────────────────────────────────────────────
 file_name = os.path.basename(__file__)
-st.set_page_config(page_title="Master Database", layout="wide", page_icon="☁")
+st.set_page_config(page_title="Master Database", layout="wide", page_icon="📁")
 
 
 # ── Firebase helpers ────────────────────────────────────────────────────────────
