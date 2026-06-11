@@ -7,13 +7,12 @@ from streamlit_autorefresh import st_autorefresh
 st_autorefresh(2000,limit=3)
 
 # login imports 
-# st.write(st.secrets["redirect_link"])
 from streamlit_oauth import OAuth2Component
 import requests
 
 # ── Page config ────────────────────────────────────────────────────────────────
 file_name = os.path.basename(__file__)
-st.set_page_config(page_title="Master Database", layout="wide", page_icon="📁")
+st.set_page_config(page_title=file_name, layout="wide", page_icon="🔃")
 
 
 # ── Firebase helpers ────────────────────────────────────────────────────────────
@@ -76,75 +75,80 @@ def cast_value(val: str):
 
 def save_field(_db, col, doc, top_key, sub_key, new_values):
     _db.collection(col).document(doc).update({f"{top_key}.{sub_key}": new_values})
-
-# functions for auth
-
-# ── Firebase Init ─────────────────────────────────────────────────────────────
-# def start_auth_app():
-#     if not firebase_admin._apps:
-#         cred_dict = dict(st.secrets["firebase1"])
-#         cred = credentials.Certificate(cred_dict)
-#         firebase_admin.initialize_app(cred)
-#     return firestore.client()
-
-# ── Google OAuth ───────────────────────────────────────────────────────────────
-CLIENT_ID     = st.secrets["client_id"]
-CLIENT_SECRET = st.secrets["client_secret"]
-AUTH          = st.secrets["client_auth_link"]
-TOKEN         = st.secrets["client_token_link"]
-
-oauth2 = OAuth2Component(CLIENT_ID, CLIENT_SECRET, AUTH, TOKEN)
-
-
-
-# ── Login Gate ─────────────────────────────────────────────────────────────────
-if "user" not in st.session_state:
+# ─────────────────────────────────────────────
+# Login Screen
+# ─────────────────────────────────────────────
+if not st.user.is_logged_in:
     st.title("🔐 Firebase Manager",text_alignment="center")
-    st.markdown("<br><br><br>",unsafe_allow_html=True)
-    result = oauth2.authorize_button(
-        name="Login with Google",
-        redirect_uri=st.secrets["redirect_link"],
-        scope="openid email profile",
-        key="google",
-        use_container_width=True
-    )
-    if result:
-        token = result["token"]["access_token"]
-        user_info = requests.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
-            headers={"Authorization": f"Bearer {token}"}
-        ).json()
-        st.session_state["user"] = user_info
-        if "profile_pic" not in st.session_state:
-            try:
-                r = requests.get(user_info["picture"], timeout=5)
-                r.raise_for_status()
-                st.session_state["profile_pic"] = r.content
-            except Exception:
-                st.session_state["profile_pic"] = None
-        st.rerun()
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    if st.button("Log in with Google", use_container_width=True):
+        st.login("google")
+
     st.stop()
 
-# ── Auth Check ─────────────────────────────────────────────────────────────────
-user = st.session_state["user"]
-allowed = st.secrets["mails"]
-if user["email"] not in allowed:
-    st.error("You are not authorized to access this app.")
-    if st.button("",use_container_width=True,icon=":material/logout:"):
-        st.session_state.clear()
-        st.rerun()
+# ─────────────────────────────────────────────
+# Authorization Check
+# ─────────────────────────────────────────────
+allowed_users = st.secrets["mails"]
+
+if st.user.email not in allowed_users:
+    st.error("❌ You are not authorized to access this application.")
+
+    if st.button("Logout", icon=":material/logout:"):
+        st.logout()
+
     st.stop()
-    
+
+# ─────────────────────────────────────────────
+# Cache Profile Picture
+# ─────────────────────────────────────────────
+if "profile_pic" not in st.session_state:
+
+    profile_url = st.user.picture
+
+    if profile_url:
+        try:
+            response = requests.get(profile_url, timeout=10)
+
+            if response.status_code == 200:
+                st.session_state.profile_pic = response.content
+            else:
+                st.session_state.profile_pic = None
+
+        except Exception:
+            st.session_state.profile_pic = None
+
+    else:
+        st.session_state.profile_pic = None
+
+# ─────────────────────────────────────────────
+# Header
+# ─────────────────────────────────────────────
 col1, col2, col3 = st.columns([1, 8, 1])
+
 with col1:
-    if st.session_state.get("profile_pic"):
-        st.image(st.session_state["profile_pic"], width=45)
+    if st.session_state.profile_pic:
+        st.image(st.session_state.profile_pic, width=60)
+    else:
+        st.image(
+            "https://via.placeholder.com/60",
+            width=60
+        )
+
 with col2:
-    st.markdown(f"### 🔥 Firebase Manager — {user['name']}")
+    st.markdown(
+        f"### 🔥 Firebase Manager — {st.user.name}"
+    )
+
 with col3:
-    if st.button("",use_container_width=True,icon=":material/logout:"):
+    if st.button(
+        "",
+        icon=":material/logout:",
+        use_container_width=True
+    ):
         st.session_state.clear()
-        st.rerun()
+        st.logout()
 
 st.divider()
 
