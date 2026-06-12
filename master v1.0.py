@@ -165,6 +165,11 @@ with st.sidebar:
     try:
         types=['Ashus','Mayas']
         data=st.selectbox(f'Select Data from {types}',types,0)
+        if st.session_state.get("previous_option") != data:
+            st.session_state.previous_option = data
+            st.cache_data.clear()
+            st.cache_resource.clear()
+            st.rerun()
         if data == types[0]: 
             db = start_app(st.secrets["firebase1"], "db")
         else:
