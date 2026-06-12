@@ -93,7 +93,8 @@ if not st.user.is_logged_in:
 allowed_users = st.secrets["mails"]
 
 if st.user.email not in allowed_users:
-    st.error("❌ You are not authorized to access this application.")
+    st.error("❌ You must be authorized to access this application")
+    st.markdown('<a href="mailto:chavansahil2300@gmail.com">Send Email</a>',unsafe_allow_html=True)
 
     if st.button("Logout", icon=":material/logout:"):
         st.logout()
