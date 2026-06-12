@@ -3,13 +3,12 @@ import os
 import firebase_admin
 from firebase_admin import credentials, firestore
 from streamlit_autorefresh import st_autorefresh
-# login imports 
-from streamlit_oauth import OAuth2Component
-import requests
 
 st_autorefresh(2000,limit=3)
 
-
+# login imports 
+from streamlit_oauth import OAuth2Component
+import requests
 
 # ── Page config ────────────────────────────────────────────────────────────────
 file_name = os.path.basename(__file__)
@@ -94,8 +93,7 @@ if not st.user.is_logged_in:
 allowed_users = st.secrets["mails"]
 
 if st.user.email not in allowed_users:
-    st.error("❌ You must be authorized to access this application")
-    st.markdown('<a href="mailto:chavansahil2300@gmail.com?subject=Request application access">Send Email</a>',unsafe_allow_html=True)
+    st.error("❌ You are not authorized to access this application.")
 
     if st.button("Logout", icon=":material/logout:"):
         st.logout()
@@ -165,6 +163,7 @@ with st.sidebar:
     try:
         types=['Ashus','Mayas']
         data=st.selectbox(f'Select Data from {types}',types,0)
+        
         if st.session_state.get("previous_option") != data:
             st.session_state.previous_option = data
             st.cache_data.clear()
@@ -172,18 +171,22 @@ with st.sidebar:
             st.rerun()
         if data == types[0]: 
             db = start_app(st.secrets["firebase1"], "db")
+            collections = get_collections(db)
+            col = st.selectbox(f"Collections ({len(collections)})", collections, index=min(1, len(collections) - 1),key="collections")
         else:
             db = start_app(st.secrets["firebase2"], "mdb")
+            collections = get_collections(db)
+            col = st.selectbox(f"Collections ({len(collections)})", collections, index=min(1, len(collections) - 1),key="collections")
     except Exception as e:
         st.error(f"❌ Firebase connection failed: {e}")
         st.stop()
     
-    collections = get_collections(db)
+    # collections = get_collections(db)
     if not collections:
         st.warning("No collections found.")
         st.stop()
 
-    col = st.selectbox(f"Collections ({len(collections)})", collections, index=min(1, len(collections) - 1))
+    
 
     documents = get_documents(db, col)
     doc_display = {doc_id.capitalize(): doc_id for doc_id in documents}
@@ -318,6 +321,45 @@ for tab, top_key in zip(tabs, key_list):
                                 except Exception as e:
                                     st.error(f"Save failed: {e}")
 
+            
+                                
+            # Append to sub-key (only shows if sub-key holds a list)
+            list_subkeys = [sk for sk, sv in field_value.items() if isinstance(sv, list)]
+            if list_subkeys:
+                with st.expander(f"➕ Append item to sub-key in `{top_key}`"):
+                    with st.form(f"append_subkey_{top_key}"):
+                        sk_to_append = st.selectbox("Sub-key (list type only)", list_subkeys)
+                        new_item = st.text_input("New value")
+                        if st.form_submit_button("Append"):
+                            try:
+                                db.collection(col).document(body).update(
+                                    {f"{top_key}.{sk_to_append}": firestore.ArrayUnion([cast_value(new_item)])}
+                                )
+                                clear_cache()
+                                st.success(f"✅ Item appended to `{top_key}.{sk_to_append}`!")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Failed: {e}")
+                                
+            # Remove item from a sub-key list
+            list_subkeys = [sk for sk, sv in field_value.items() if isinstance(sv, list) and sv]
+            if list_subkeys:
+                with st.expander(f"🗑️ Remove item from sub-key list in `{top_key}`"):
+                    with st.form(f"remove_subkey_item_{top_key}"):
+                        sk_to_remove = st.selectbox("Sub-key (list type only)", list_subkeys, key=f"sk_rem_{top_key}")
+                        items_in_sk = [str(i) for i in field_value[sk_to_remove]]
+                        item_to_del = st.selectbox("Item to remove", items_in_sk, key=f"item_rem_{top_key}")
+                        if st.form_submit_button("Remove"):
+                            try:
+                                db.collection(col).document(body).update(
+                                    {f"{top_key}.{sk_to_remove}": firestore.ArrayRemove([cast_value(item_to_del)])}
+                                )
+                                clear_cache()
+                                st.success(f"🗑️ Item removed from `{top_key}.{sk_to_remove}`!")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Failed: {e}")
+            
             # Add sub-key
             with st.expander(f"➕ Add sub-key to `{top_key}`"):
                 with st.form(f"add_subkey_{top_key}"):
@@ -336,7 +378,7 @@ for tab, top_key in zip(tabs, key_list):
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"Failed: {e}")
-
+            
             # Delete sub-key
             if isinstance(field_value, dict) and field_value:
                 with st.expander(f"🗑️ Delete sub-key from `{top_key}`"):
