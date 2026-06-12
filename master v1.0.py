@@ -105,7 +105,7 @@ if st.user.email not in allowed_users:
 # ─────────────────────────────────────────────
 import time
 
-TIMEOUT_SECONDS = 1 * 60  # change this to whatever you want
+TIMEOUT_SECONDS = 10 * 60  # change this to whatever you want
 
 if "last_active" not in st.session_state:
     st.session_state.last_active = time.time()
