@@ -94,7 +94,7 @@ allowed_users = st.secrets["mails"]
 
 if st.user.email not in allowed_users:
     st.error("❌ You must be authorized to access this application")
-    st.markdown('<a href="mailto:chavansahil2300@gmail.com">Send Email</a>',unsafe_allow_html=True)
+    st.markdown('<a href="mailto:chavansahil2300@gmail.com?subject=Request application access">Send Email</a>',unsafe_allow_html=True)
 
     if st.button("Logout", icon=":material/logout:"):
         st.logout()
