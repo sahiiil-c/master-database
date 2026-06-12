@@ -3,12 +3,13 @@ import os
 import firebase_admin
 from firebase_admin import credentials, firestore
 from streamlit_autorefresh import st_autorefresh
-
-st_autorefresh(2000,limit=3)
-
 # login imports 
 from streamlit_oauth import OAuth2Component
 import requests
+
+st_autorefresh(2000,limit=3)
+
+
 
 # ── Page config ────────────────────────────────────────────────────────────────
 file_name = os.path.basename(__file__)
