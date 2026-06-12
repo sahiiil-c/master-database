@@ -79,7 +79,7 @@ def save_field(_db, col, doc, top_key, sub_key, new_values):
 # Login Screen
 # ─────────────────────────────────────────────
 if not st.user.is_logged_in:
-    st.title("🔐 Firebase Data Manager",text_alignment="center")
+    st.title("🔐 Database Manager",text_alignment="center")
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     if st.button("Log in with Google", use_container_width=True):
