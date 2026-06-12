@@ -79,7 +79,7 @@ def save_field(_db, col, doc, top_key, sub_key, new_values):
 # Login Screen
 # ─────────────────────────────────────────────
 if not st.user.is_logged_in:
-    st.title("🔐 Database Manager",text_alignment="center")
+    st.title("🔐 Firebase Manager",text_alignment="center")
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     if st.button("Log in with Google", use_container_width=True):
@@ -99,6 +99,25 @@ if st.user.email not in allowed_users:
         st.logout()
 
     st.stop()
+
+# ─────────────────────────────────────────────
+# Session Timeout (10 minutes inactivity)
+# ─────────────────────────────────────────────
+import time
+
+TIMEOUT_SECONDS = 1 * 60  # change this to whatever you want
+
+if "last_active" not in st.session_state:
+    st.session_state.last_active = time.time()
+
+# Check if timed out
+if time.time() - st.session_state.last_active > TIMEOUT_SECONDS:
+    st.session_state.clear()
+    st.logout()
+    st.stop()
+
+# Reset timer on every interaction
+st.session_state.last_active = time.time()
 
 # ─────────────────────────────────────────────
 # Cache Profile Picture
@@ -286,15 +305,7 @@ for tab, top_key in zip(tabs, key_list):
     with tab:
         field_value = doc_data.get(top_key)
 
-        # Delete field button
-        if st.button(f"🗑️ Delete field `{top_key}`", key=f"del_field_{top_key}"):
-            try:
-                db.collection(col).document(body).update({top_key: firestore.DELETE_FIELD})
-                clear_cache()
-                st.success(f"Field `{top_key}` deleted.")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Failed: {e}")
+        
 
         # ── Case 1: dict ──────────────────────────────────────────────────────
         if isinstance(field_value, dict):
@@ -393,6 +404,18 @@ for tab, top_key in zip(tabs, key_list):
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"Failed: {e}")
+            
+            # Delete field button
+            with st.expander(":warning: Delete the whole field"):
+                with st.expander(":warning: Are you sure?"):
+                    if st.button(f":warning: Delete field `{top_key}`", key=f"del_field_{top_key}"):
+                        try:
+                            db.collection(col).document(body).update({top_key: firestore.DELETE_FIELD})
+                            clear_cache()
+                            st.success(f"Field `{top_key}` deleted.")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Failed: {e}")
 
         # ── Case 2: list ──────────────────────────────────────────────────────
         elif isinstance(field_value, list):
