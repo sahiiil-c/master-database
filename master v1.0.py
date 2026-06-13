@@ -126,9 +126,9 @@ def discover_firebase_keys() -> list[str]:
 
 # ── Login Screen ───────────────────────────────────────────────────────────────
 if not st.user.is_logged_in:
-    st.title("🔐 Firebase Manager",text_alignment="center")
+    st.title("💾 Firebase Manager",text_alignment="center")
     st.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
-    if st.button(":material/account_circle: Log in with Google", use_container_width=True,):
+    if st.button(":material/account_circle: 🔐 Log in with Google", use_container_width=True,):
         st.login("google")
     st.stop()
 
