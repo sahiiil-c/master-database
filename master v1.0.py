@@ -10,7 +10,7 @@ from streamlit_autorefresh import st_autorefresh
 
 # ── Page config ────────────────────────────────────────────────────────────────
 file_name = "Master Database"
-st.set_page_config(page_title=file_name, layout="wide", page_icon="🔃")
+st.set_page_config(page_title=file_name, layout="wide", page_icon="☁")
 
 
 # ── Firebase helpers ───────────────────────────────────────────────────────────
