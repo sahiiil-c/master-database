@@ -136,7 +136,7 @@ if not st.user.is_logged_in:
 role, client_db_key, client_allowed_cols = resolve_user_role(st.user.email)
 
 if role == "unauthorized":
-    st.error("❌ You are not authorized to access this application.")
+    st.error("❌ You must be authorized to access this application.")
     if st.button("Logout", icon=":material/logout:"):
         st.logout()
         st.rerun()
