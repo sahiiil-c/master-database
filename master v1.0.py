@@ -1,6 +1,6 @@
 import ast
 import time
-import os
+
 
 import requests
 import streamlit as st
@@ -9,7 +9,7 @@ import firebase_admin
 from streamlit_autorefresh import st_autorefresh
 
 # ── Page config ────────────────────────────────────────────────────────────────
-file_name = os.path.basename(__file__)
+file_name = "Master Database"
 st.set_page_config(page_title=file_name, layout="wide", page_icon="🔃")
 
 
