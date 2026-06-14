@@ -573,8 +573,7 @@ for tab, top_key in zip(tabs, key_list):
                             except Exception as e:
                                 st.error(f"Failed: {e}")
 
-            with st.expander(":warning: Delete the whole 
-            Section"):
+            with st.expander(":warning: Delete the whole Section"):
                 with st.expander(":warning: Are you sure?"):
                     if st.button(
                         f":warning: Delete field `{top_key}`",
