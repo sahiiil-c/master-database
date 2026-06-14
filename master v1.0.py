@@ -8,9 +8,29 @@ from firebase_admin import credentials, firestore
 import firebase_admin
 from streamlit_autorefresh import st_autorefresh
 
+hide_st_style = """
+            <style>
+            MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            # [data-testid="stToolbar"] {
+            #     visibility: hidden;
+            #     height: 0%;
+            # }
+            [data-testid="stDecoration"] {
+                visibility: hidden;
+                height: 0%;
+            }
+            [data-testid="stStatusWidget"] {
+                visibility: hidden;
+                height: 0%;
+            }
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
 # ── Page config ────────────────────────────────────────────────────────────────
-file_name = "Master Database"
-st.set_page_config(page_title=file_name, layout="wide", page_icon="☁")
+# file_name = "Master Database"
+st.set_page_config(page_title=st.secret.file_name, layout="wide", page_icon="☁")
 
 
 # ── Firebase helpers ───────────────────────────────────────────────────────────
