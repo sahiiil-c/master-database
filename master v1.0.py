@@ -29,7 +29,7 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ── Page config ────────────────────────────────────────────────────────────────
-# file_name = st.secfile_name
+# file_name = st.secrets.file_name
 st.set_page_config(page_title=st.secrets.file_name, layout="wide", page_icon="☁")
 
 
