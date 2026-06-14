@@ -29,8 +29,8 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ── Page config ────────────────────────────────────────────────────────────────
-# file_name = "Master Database"
-st.set_page_config(page_title=st.secret.file_name, layout="wide", page_icon="☁")
+# file_name = st.secfile_name
+st.set_page_config(page_title=st.secrets.file_name, layout="wide", page_icon="☁")
 
 
 # ── Firebase helpers ───────────────────────────────────────────────────────────
